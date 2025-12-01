@@ -69,7 +69,7 @@ class SnakeGame {
             { x: Math.floor(this.GRID_COUNT / 2) - 2, y: Math.floor(this.GRID_COUNT / 2) }
         ];
         
-        this.direction = { x: 0, y: 0 };
+        this.direction = { x: 0, y: 0 }; 
         this.nextDirection = { x: 0, y: 0 };
         this.score = 0;
         this.gameRunning = false;
@@ -78,7 +78,7 @@ class SnakeGame {
         this.updateDisplay();
     }
     
-    // Setup keyboard event listeners
+    // Setup event listeners for keyboard and touch
     setupEventListeners() {
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
         document.getElementById('restartBtn').addEventListener('click', () => this.restart());
@@ -89,9 +89,57 @@ class SnakeGame {
                 this.restart();
             }
         });
+        
+        // D-pad controls (works for both click and touch)
+        const dpadButtons = [
+            { id: 'dpad-up', direction: 'up' },
+            { id: 'dpad-down', direction: 'down' },
+            { id: 'dpad-left', direction: 'left' },
+            { id: 'dpad-right', direction: 'right' },
+        ];
+        
+        dpadButtons.forEach(button => {
+            const element = document.getElementById(button.id);
+            element.addEventListener('click', () => this.setDirection(button.direction));
+        });
     }
     
-    // Handle keyboard input
+    // Set the snake's direction from keyboard or touch input
+    setDirection(dir) {
+        let newDirection;
+        
+        switch(dir) {
+            case 'up':
+            case 'w':
+                newDirection = { x: 0, y: -1 };
+                break;
+            case 'down':
+            case 's':
+                newDirection = { x: 0, y: 1 };
+                break;
+            case 'left':
+            case 'a':
+                newDirection = { x: -1, y: 0 };
+                break;
+            case 'right':
+            case 'd':
+                newDirection = { x: 1, y: 0 };
+                break;
+        }
+        
+        if (newDirection) {
+            if (!this.gameRunning) {
+                // On the first move, set the direction immediately
+                this.direction = newDirection;
+                this.gameRunning = true;
+                this.startGameLoop();
+            } else {
+                this.nextDirection = newDirection;
+            }
+        }
+    }
+    
+    // Handle keyboard input by mapping keys to directions
     handleKeyPress(event) {
         const key = event.key.toLowerCase();
         
